@@ -26,7 +26,7 @@ var User = new mongoose.Schema({
 
 var Users = mongoose.model('Users', User);
 
-module.exports.createUser = function (req, res) {
+exports.createUser = function (req, res) {
   var salt = bcrypt.genSaltSync(10);
   var hash = bcrypt.hashSync(req.password, salt);
   var User = new Users({
@@ -40,26 +40,25 @@ module.exports.createUser = function (req, res) {
       res.send(data);
     }).catch(err => {
       res.status(500).send({
-        message: err.message || "Some error occurred while creating the Note."
+        message: err.message || "Some error occurred while creating the User."
       });
     });
 };
 
-module.exports.getListUser = function (req, res) {
+exports.getListUser = function (req, res) {
   Users.find({}, function (err, users) {
-    console.log(users);
     res.send(users);
   });
 };
 
-module.exports.getUserById = function (req, res) {
+exports.getUserById = function (req, res) {
   Users.findById(req).then(data => {
     res.send('success: ' + data);
   })
     .catch(err => res.send(err));
 };
 
-module.exports.updateUser = function (req, res) {
+exports.updateUser = function (req, res) {
 
   var salt = bcrypt.genSaltSync(10);
   var hash = bcrypt.hashSync(req.body.password, salt);
@@ -76,14 +75,14 @@ module.exports.updateUser = function (req, res) {
     });
 };
 
-module.exports.deleteUser = function (req, res) {
+exports.deleteUser = function (req, res) {
   Users.remove({ "_id": ObjectID(req.params.id) }, function (err, docs) {  //db.users.remove({"_id": ObjectId("4d512b45cc9374271b02ec4f")});
     if (err) res.send(err);
     res.send("User deleted");
   });
 };
 
-module.exports.findUserByNameAndPhone = function (req, res) {
+exports.findUserByNameAndPhone = function (req, res) {
   Users.find( {$and: [{ name: req.params.name} , {phone: req.params.phone }] }, function (err, users) {
     if (err) res.send(err);
     if (users.length > 0) {
