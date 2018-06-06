@@ -1,10 +1,16 @@
-var mongodb = require('mongodb');
 var mongoose = require('mongoose');
+var APIError = require('./lib/APIError');
+var HttpStatus = require('http-status');
+
+var validate = require('express-validation');
+require('dotenv').config();
 // Connect to the db
-var mongoDB = 'mongodb://127.0.0.1/my_database';
+
+var mongoDB = 'mongodb://' + process.env.DB_HOST + ':' + process.env.DB_PORT + '/' + process.env.DB_NAME;
 mongoose.connect(mongoDB);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
+
 
 var createError = require('http-errors');
 var express = require('express');
@@ -37,15 +43,18 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+app.use((err, req, res, next) => {
+  if (err instanceof validate.ValidationError) {
+    // validation error contains errors which is an array of error each containing message[]
+    const msg = err.errors.map(error => error.messages.join('. ')).join(' and ');
+    const e = new APIError(HttpStatus.BAD_REQUEST, `${msg}`);
+    return next(e);
+  } else if (!(err instanceof APIError)) {
+    const status = err.status || HttpStatus.INTERNAL_SERVER_ERROR;
+    const e = new APIError(status, err.message);
+    return next(e);
+  }
+  return next(err);
+})
 
 module.exports = app;

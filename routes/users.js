@@ -1,10 +1,11 @@
 var express = require('express');
 var router = express.Router();
+var validation = require('express-validation');
+var UserValidate = require('./../lib/customvalidations'); 
 var userController = require('../controllers/users');
-var groupController = require('../controllers/groups');
 
 /* API User */
-router.post('/', userController.createNewUser);
+router.post('/', validation(UserValidate.create), userController.createNewUser);
 router.get('/', userController.getListUsers);
 router.get('/:id', userController.getUserById);
 router.put('/:id/edit', userController.updateUser);
