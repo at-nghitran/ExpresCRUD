@@ -15,7 +15,7 @@ var User = new mongoose.Schema({
     type: Number
   },
   phone: {
-    type: String
+    type: Number
   },
   created_at: {
     type: Date,
@@ -26,71 +26,37 @@ var User = new mongoose.Schema({
 
 var Users = mongoose.model('Users', User);
 
-module.exports.createUser = function (req, res) {
-  var salt = bcrypt.genSaltSync(10);
-  var hash = bcrypt.hashSync(req.password, salt);
-  var User = new Users({
-    name: req.name,
-    password: hash ? hash : '',
-    phone: req.phone,
-    age: req.age
-  });
-  User.save()
-    .then(data => {
-      res.send(data);
-    }).catch(err => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while creating the Note."
-      });
-    });
-};
-
-module.exports.getListUser = function (req, res) {
-  Users.find({}, function (err, users) {
-    console.log(users);
-    res.send(users);
-  });
-};
-
-module.exports.getUserById = function (req, res) {
-  Users.findById(req).then(data => {
-    res.send('success: ' + data);
-  })
-    .catch(err => res.send(err));
-};
-
-module.exports.updateUser = function (req, res) {
+exports.createUser = function (user, callback) {
+  var User = new Users(user);
 
   var salt = bcrypt.genSaltSync(10);
-  var hash = bcrypt.hashSync(req.body.password, salt);
-
-  Users.update({ _id: ObjectID(req.params.id) },
-    {
-      name: req.body.name,
-      age: req.body.age,
-      password: hash ? hash : req.body.password,
-      phone: req.body.phone
-    }, function (err, result) {
-      if (err) res.send(err);
-      res.send(result.nModified + " document(s) updated");
-    });
+  var hash = bcrypt.hashSync(user.password, salt);
+  User.password = hash;
+  User.save(callback);
 };
 
-module.exports.deleteUser = function (req, res) {
-  Users.remove({ "_id": ObjectID(req.params.id) }, function (err, docs) {  //db.users.remove({"_id": ObjectId("4d512b45cc9374271b02ec4f")});
-    if (err) res.send(err);
-    res.send("User deleted");
-  });
+exports.getListUser = function ({}, callback) {
+  Users.find({}, callback);
 };
 
-module.exports.findUserByNameAndPhone = function (req, res) {
-  Users.find( {$and: [{ name: req.params.name} , {phone: req.params.phone }] }, function (err, users) {
-    if (err) res.send(err);
-    if (users.length > 0) {
-      res.send(users);
-    } else {
-      res.send('Not user found !!!');
-    }
-  })
+exports.getUserById = function (id, callback) {
+  Users.findOne({ _id: id }).exec(callback);
+};
+
+exports.updateUser = function (id, update, callback) {
+
+  var salt = bcrypt.genSaltSync(10);
+  var hash = bcrypt.hashSync(update.password, salt);
+  update.password = hash;
+
+  Users.findByIdAndUpdate(id, update, callback);
+};
+
+exports.deleteUser = function (id, callback) {
+  Users.findByIdAndRemove(id, callback);
+};
+
+exports.findUserByNameAndPhone = function (pname, pphone, callback) {
+  Users.find( { $and: [{ name: pname} , { phone: pphone }] }, callback)
 };
 

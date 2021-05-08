@@ -6,7 +6,7 @@ var groupController = require('../controllers/groups');
 router.post('/', groupController.createNewGroup);
 router.get('/', groupController.getListGroup);
 router.get('/:id', groupController.getGroupById);
-router.put('/:id', groupController.updateGroup);
+router.put('/:id/edit', groupController.updateGroup);
 router.delete('/:id', groupController.deleteGroup);
 
 module.exports = router;

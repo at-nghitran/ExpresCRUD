@@ -1,28 +1,43 @@
 var userModel = require('../models/user');
-// var Users = mongoose.model('Users', User);
 
-module.exports.createNewUser = function (req, res) {
-  if (req) { 
-    userModel.createUser(req.body, res);
-  };
+exports.createNewUser = function (req, res) {
+  userModel.createUser(req.body, function (err, user) {
+    if (err) throw err;
+    res.send(200, user);
+  })
 };
 
-module.exports.getListUsers = function (req, res) {
-  userModel.getListUser(req, res);
+exports.getListUsers = function (req, res) {
+  userModel.getListUser({}, function (err, data) {
+    if (err) throw err;
+    res.send(200, data);
+  });
 }
 
-module.exports.getUserById = function (req, res) {
-  userModel.getUserById(req.params.id, res);
+exports.getUserById = function (req, res) {
+  userModel.getUserById(req.params.id, function (err, user) {
+    if (err) throw err;
+    res.send(200, user);
+  })
 }
 
-module.exports.updateUser = function (req, res) {
-  userModel.updateUser(req, res);
+exports.updateUser = function (req, res) {
+  userModel.updateUser(req.params.id, req.body, function (err, user) {
+    if (err) throw err;
+    res.send(user);
+  });
 }
 
-module.exports.deleteUser = function (req, res) {
-  userModel.deleteUser(req, res);
+exports.deleteUser = function (req, res) {
+  userModel.deleteUser(req.params.id, function (err, usr) {
+    if (err) throw err;
+    res.status(200).send(usr);
+  });
 }
 
-module.exports.findUserByNameAndPhone = function (req, res) {
-  userModel.findUserByNameAndPhone(req, res);
+exports.findUserByNameAndPhone = function (req, res) {
+  userModel.findUserByNameAndPhone(req.params.name, req.params.phone, function (err, data) {
+    if (err) throw err;
+    res.send(data);
+  });
 }

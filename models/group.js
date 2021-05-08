@@ -19,7 +19,7 @@ var schema = new mongoose.Schema({
 
 var Groups = mongoose.model('Groups', schema);
 
-module.exports.createGroup = function (req, res) {
+exports.createGroup = function (req, res) {
   var Group = new Groups({
     name_group: req.body.name_group,
     note: req.body.note
@@ -34,21 +34,21 @@ module.exports.createGroup = function (req, res) {
     });
 };
 
-module.exports.getListGroup = function (req, res) {
+exports.getListGroup = function (req, res) {
   Groups.find({}, function (err, groups) {
     if (err) res.send(err);
     res.send(groups);
   });
 };
 
-module.exports.getGroupById = function (req, res) {
+exports.getGroupById = function (req, res) {
   Groups.findById(req.params.id).then(data => {
     res.send('success: ' + data);
   })
     .catch(err => res.send(err));
 };
 
-module.exports.updateGroup = function (req, res) {
+exports.updateGroup = function (req, res) {
 
   Groups.update({ _id: ObjectID(req.params.id) },
     {
@@ -60,7 +60,7 @@ module.exports.updateGroup = function (req, res) {
     });
 };
 
-module.exports.deleteGroup = function (req, res) {
+exports.deleteGroup = function (req, res) {
   Groups.remove({ "_id": ObjectID(req.params.id) }, function (err, docs) {  //db.users.remove({"_id": ObjectId("4d512b45cc9374271b02ec4f")});
     if (err) res.send(err);
     res.send("User deleted");
